@@ -35,7 +35,7 @@ export async function archiveShortTermToLongTerm(params: ArchivalParams): Promis
 
   const rows = db
     .prepare(
-      `SELECT path, tier, recall_count, last_recalled_at FROM memory_tiers WHERE tier = 'T2'`,
+      `SELECT path, tier, recall_count AS recallCount, last_recalled_at AS lastRecalledAt FROM memory_tiers WHERE tier = 'T2'`,
     )
     .all() as MemoryTierEntry[];
 
@@ -133,7 +133,7 @@ export async function promoteToShortTerm(params: ArchivalParams): Promise<number
 
   const rows = db
     .prepare(
-      `SELECT path, tier, recall_count, last_recalled_at, promoted_at FROM memory_tiers WHERE tier = 'T3'`,
+      `SELECT path, tier, recall_count AS recallCount, last_recalled_at AS lastRecalledAt, promoted_at AS promotedAt FROM memory_tiers WHERE tier = 'T3'`,
     )
     .all() as MemoryTierEntry[];
 
@@ -297,14 +297,14 @@ export async function purgeLongTermMemories(params: ArchivalParams): Promise<num
     // Remove from all SQLite tables
     db.prepare(`DELETE FROM memory_tiers WHERE path = ?`).run(row.path);
     db.prepare(`DELETE FROM files WHERE path = ?`).run(row.path);
-    db.prepare(`DELETE FROM chunks WHERE path = ?`).run(row.path);
     try {
       db.prepare(
         `DELETE FROM chunk_recall WHERE chunk_id IN (SELECT id FROM chunks WHERE path = ?)`,
       ).run(row.path);
     } catch {
-      // chunks already deleted
+      // chunk_recall table may not exist yet
     }
+    db.prepare(`DELETE FROM chunks WHERE path = ?`).run(row.path);
 
     purged += 1;
     log.debug(`purged long-term memory: ${row.path}`);

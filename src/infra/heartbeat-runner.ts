@@ -36,6 +36,7 @@ import {
   updateSessionStore,
 } from "../config/sessions.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
+import { getMemorySearchManager } from "../memory/index.js";
 import { MemoryTierService } from "../memory/tier-service.js";
 import { getQueueSize } from "../process/command-queue.js";
 import { CommandLane } from "../process/lanes.js";
@@ -980,7 +981,13 @@ async function runTierMaintenance(cfg: OpenClawConfig, agentId: string): Promise
     service = new MemoryTierService({ cfg, agentId });
     tierServiceCache.set(agentId, service);
   }
-  // Run without db/callLlm for now — the service will skip if no db is provided.
-  // Full integration with db requires the MemoryIndexManager instance.
-  await service.runCycle();
+  const { manager } = await getMemorySearchManager({ cfg, agentId });
+  if (!manager) {
+    return;
+  }
+  const db = (manager as unknown as { db?: import("node:sqlite").DatabaseSync }).db;
+  if (!db) {
+    return;
+  }
+  await service.runCycle({ db });
 }
