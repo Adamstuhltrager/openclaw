@@ -6,8 +6,8 @@
  */
 
 import type { DatabaseSync } from "node:sqlite";
-import type { MemorySearchResult } from "./types.js";
 import type { MemoryTier } from "./tier-types.js";
+import type { MemorySearchResult } from "./types.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 
 const log = createSubsystemLogger("memory/tier-recall");

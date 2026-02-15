@@ -10,8 +10,8 @@ import type { DatabaseSync } from "node:sqlite";
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { ResolvedTierConfig, MemoryTierEntry } from "./tier-types.js";
-import { ensureDir } from "./internal.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
+import { ensureDir } from "./internal.js";
 
 const log = createSubsystemLogger("memory/tier-archival");
 
@@ -34,7 +34,9 @@ export async function archiveShortTermToLongTerm(params: ArchivalParams): Promis
   const longTermDir = path.join(workspaceDir, "memory", "long-term");
 
   const rows = db
-    .prepare(`SELECT path, tier, recall_count, last_recalled_at FROM memory_tiers WHERE tier = 'T2'`)
+    .prepare(
+      `SELECT path, tier, recall_count, last_recalled_at FROM memory_tiers WHERE tier = 'T2'`,
+    )
     .all() as MemoryTierEntry[];
 
   if (rows.length === 0) {
@@ -62,9 +64,9 @@ export async function archiveShortTermToLongTerm(params: ArchivalParams): Promis
     }
 
     // Also check file age — must have existed for at least noRecallHours
-    const fileRow = db
-      .prepare(`SELECT mtime FROM files WHERE path = ?`)
-      .get(entry.path) as { mtime: number } | undefined;
+    const fileRow = db.prepare(`SELECT mtime FROM files WHERE path = ?`).get(entry.path) as
+      | { mtime: number }
+      | undefined;
     if (fileRow && fileRow.mtime > noRecallCutoff) {
       continue;
     }
@@ -218,9 +220,9 @@ export async function promoteSpecificFile(params: {
   const shortTermDir = path.join(workspaceDir, "memory", "short-term");
 
   // Verify the file is T3
-  const entry = db
-    .prepare(`SELECT tier FROM memory_tiers WHERE path = ?`)
-    .get(filePath) as { tier: string } | undefined;
+  const entry = db.prepare(`SELECT tier FROM memory_tiers WHERE path = ?`).get(filePath) as
+    | { tier: string }
+    | undefined;
 
   if (!entry || entry.tier !== "T3") {
     return false;

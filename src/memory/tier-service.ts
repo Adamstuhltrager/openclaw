@@ -13,13 +13,13 @@ import type { OpenClawConfig } from "../config/config.js";
 import type { ResolvedTierConfig } from "./tier-types.js";
 import { resolveAgentWorkspaceDir } from "../agents/agent-scope.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
-import { resolveTierConfig } from "./tier-config.js";
-import { cleanupCompressedDailyFiles, compressDailyToShortTerm } from "./tier-compression.js";
 import {
   archiveShortTermToLongTerm,
   promoteToShortTerm,
   purgeLongTermMemories,
 } from "./tier-archival.js";
+import { cleanupCompressedDailyFiles, compressDailyToShortTerm } from "./tier-compression.js";
+import { resolveTierConfig } from "./tier-config.js";
 
 const log = createSubsystemLogger("memory/tier-service");
 

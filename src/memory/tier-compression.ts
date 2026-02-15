@@ -11,8 +11,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { OpenClawConfig } from "../config/config.js";
 import type { ResolvedTierConfig } from "./tier-types.js";
-import { ensureDir } from "./internal.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
+import { ensureDir } from "./internal.js";
 
 const log = createSubsystemLogger("memory/tier-compression");
 
@@ -195,7 +195,9 @@ export async function cleanupCompressedDailyFiles(params: {
 
     // Check if this file has been compressed
     const row = db
-      .prepare(`SELECT compression_at FROM memory_tiers WHERE path = ? AND compression_at IS NOT NULL`)
+      .prepare(
+        `SELECT compression_at FROM memory_tiers WHERE path = ? AND compression_at IS NOT NULL`,
+      )
       .get(relPath) as { compression_at: number } | undefined;
 
     if (!row) {
@@ -276,11 +278,13 @@ async function buildTopicGroups(files: string[]): Promise<TopicGroup[]> {
 }
 
 function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 60) || "general";
+  return (
+    text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 60) || "general"
+  );
 }
 
 async function updateShortTermIndex(dir: string): Promise<void> {
@@ -302,6 +306,8 @@ async function updateShortTermIndex(dir: string): Promise<void> {
 
     await fs.writeFile(path.join(dir, "_index.json"), JSON.stringify(index, null, 2), "utf-8");
   } catch (err) {
-    log.warn(`failed to update short-term index: ${err instanceof Error ? err.message : String(err)}`);
+    log.warn(
+      `failed to update short-term index: ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
 }

@@ -36,6 +36,7 @@ import {
   updateSessionStore,
 } from "../config/sessions.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
+import { MemoryTierService } from "../memory/tier-service.js";
 import { getQueueSize } from "../process/command-queue.js";
 import { CommandLane } from "../process/lanes.js";
 import { normalizeAgentId, toAgentStoreSessionKey } from "../routing/session-key.js";
@@ -61,7 +62,6 @@ import {
   resolveHeartbeatSenderContext,
 } from "./outbound/targets.js";
 import { peekSystemEventEntries } from "./system-events.js";
-import { MemoryTierService } from "../memory/tier-service.js";
 
 type HeartbeatDeps = OutboundSendDeps &
   ChannelHeartbeatDeps & {

@@ -83,7 +83,8 @@ export function resolveTierConfig(
       ot?.deletion?.noRecallHours ??
       dt?.deletion?.noRecallHours ??
       DEFAULT_DELETION_NO_RECALL_HOURS,
-    neverDelete: ot?.deletion?.neverDelete ?? dt?.deletion?.neverDelete ?? DEFAULT_DELETION_NEVER_DELETE,
+    neverDelete:
+      ot?.deletion?.neverDelete ?? dt?.deletion?.neverDelete ?? DEFAULT_DELETION_NEVER_DELETE,
   };
 
   const searchWeights = {

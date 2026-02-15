@@ -4,6 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { ResolvedMemorySearchConfig } from "../agents/memory-search.js";
 import type { OpenClawConfig } from "../config/config.js";
+import type { ResolvedTierConfig } from "./tier-types.js";
 import type {
   MemoryEmbeddingProbeResult,
   MemoryProviderStatus,
@@ -30,7 +31,6 @@ import { searchKeyword, searchVector } from "./manager-search.js";
 import { memoryManagerSyncOps } from "./manager-sync-ops.js";
 import { resolveTierConfig } from "./tier-config.js";
 import { recordChunkRecalls } from "./tier-recall.js";
-import type { ResolvedTierConfig } from "./tier-types.js";
 const SNIPPET_MAX_CHARS = 700;
 const VECTOR_TABLE = "chunks_vec";
 const FTS_TABLE = "chunks_fts";
@@ -285,10 +285,9 @@ export class MemoryIndexManager implements MemorySearchManager {
       return this.tierConfigCache;
     }
     const defaults = this.cfg.agents?.defaults?.memorySearch;
-    const overrides =
-      this.cfg.agents?.list?.find(
-        (a: { id?: string }) => a?.id === this.agentId,
-      )?.memorySearch;
+    const overrides = this.cfg.agents?.list?.find(
+      (a: { id?: string }) => a?.id === this.agentId,
+    )?.memorySearch;
     this.tierConfigCache = resolveTierConfig(defaults, overrides);
     return this.tierConfigCache;
   }
@@ -318,9 +317,7 @@ export class MemoryIndexManager implements MemorySearchManager {
     });
 
     // Filter out T3 results unless deepSearch is true
-    const filtered = deepSearch
-      ? enriched
-      : enriched.filter((r) => r.tier !== "T3");
+    const filtered = deepSearch ? enriched : enriched.filter((r) => r.tier !== "T3");
 
     // Re-sort by weighted score
     return filtered.toSorted((a, b) => b.score - a.score);
@@ -328,9 +325,9 @@ export class MemoryIndexManager implements MemorySearchManager {
 
   private lookupChunkTier(filePath: string): string | undefined {
     try {
-      const row = this.db
-        .prepare(`SELECT tier FROM files WHERE path = ? LIMIT 1`)
-        .get(filePath) as { tier?: string } | undefined;
+      const row = this.db.prepare(`SELECT tier FROM files WHERE path = ? LIMIT 1`).get(filePath) as
+        | { tier?: string }
+        | undefined;
       return row?.tier ?? undefined;
     } catch {
       return undefined;
